@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IMRA — Intelligent Market Research Assistant</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">📊</div>
+        <div class="brand-text">
+          <span class="brand-name">IMRA</span>
+          <span class="brand-sub">Intelligent Market Research Assistant</span>
+        </div>
+      </div>
+      <div class="header-meta">
+        <span id="mode-badge" class="badge badge-demo">⏳ Connecting…</span>
+        <span class="powered-by">Powered by <strong>IBM Granite</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <main class="main-layout">
+    <!-- Left Panel: Input + Q&A -->
+    <aside class="panel panel-left">
+
+      <!-- Research Form -->
+      <section class="card" id="research-form-card">
+        <div class="card-header">
+          <span class="card-icon">🔬</span>
+          <h2>Market Research Request</h2>
+        </div>
+        <form id="research-form" novalidate>
+          <div class="form-group">
+            <label for="industry">Industry <span class="required">*</span></label>
+            <input type="text" id="industry" name="industry" placeholder="e.g. EdTech, FinTech, HealthTech" maxlength="200" required />
+          </div>
+          <div class="form-group">
+            <label for="product">Product / Service <span class="required">*</span></label>
+            <input type="text" id="product" name="product" placeholder="e.g. AI tutoring mobile app" maxlength="200" required />
+          </div>
+          <div class="form-group">
+            <label for="target_audience">Target Audience <span class="required">*</span></label>
+            <input type="text" id="target_audience" name="target_audience" placeholder="e.g. K-12 students, age 10-18" maxlength="200" required />
+          </div>
+          <div class="form-group">
+            <label for="location">Location / Market <span class="required">*</span></label>
+            <input type="text" id="location" name="location" placeholder="e.g. India, Southeast Asia, USA" maxlength="200" required />
+          </div>
+          <div class="form-group">
+            <label for="competitors">Known Competitors <span class="optional">(optional)</span></label>
+            <input type="text" id="competitors" name="competitors" placeholder="e.g. BYJU'S, Unacademy, Khan Academy" maxlength="300" />
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="research-btn">
+            <span class="btn-icon">🚀</span>
+            <span class="btn-label">Generate Market Report</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- Divider -->
+      <div class="divider"><span>or ask a quick question</span></div>
+
+      <!-- Q&A Section -->
+      <section class="card" id="qa-card">
+        <div class="card-header">
+          <span class="card-icon">💬</span>
+          <h2>Market Research Q&amp;A</h2>
+        </div>
+        <div class="chat-window" id="chat-window">
+          <div class="chat-welcome">
+            <p>Ask me anything about market research, business strategy, or competitive analysis.</p>
+            <div class="sample-questions">
+              <button class="sample-q" onclick="setSampleQ('What are the best methods for validating product-market fit?')">What are the best methods for validating product-market fit?</button>
+              <button class="sample-q" onclick="setSampleQ('How do I conduct a competitive analysis for a SaaS startup?')">How do I conduct a competitive analysis for a SaaS startup?</button>
+              <button class="sample-q" onclick="setSampleQ('What is a Blue Ocean Strategy and when should I use it?')">What is a Blue Ocean Strategy and when should I use it?</button>
+              <button class="sample-q" onclick="setSampleQ('How do I estimate TAM, SAM, and SOM for my market?')">How do I estimate TAM, SAM, and SOM for my market?</button>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="qa-input" placeholder="Ask a market research question…" maxlength="500" />
+          <button class="btn btn-secondary" id="qa-btn" onclick="sendQuery()">Ask</button>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Right Panel: Report Output -->
+    <section class="panel panel-right" id="report-panel">
+      <!-- Empty state -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>Your Market Research Report</h3>
+        <p>Fill in the form on the left and click <strong>Generate Market Report</strong> to receive a comprehensive AI-powered market analysis.</p>
+        <ul class="feature-list">
+          <li>📈 Market trends & growth forecast</li>
+          <li>🎯 Competitor intelligence</li>
+          <li>👥 Customer persona & insights</li>
+          <li>💡 Strategic opportunities</li>
+          <li>✅ Actionable recommendations</li>
+        </ul>
+      </div>
+
+      <!-- Loading state -->
+      <div class="loading-state hidden" id="loading-state">
+        <div class="loading-spinner"></div>
+        <h3 id="loading-title">Initializing Research…</h3>
+        <p id="loading-subtitle">IBM Granite is analyzing your market</p>
+        <div class="agent-steps" id="agent-steps-live"></div>
+      </div>
+
+      <!-- Report output -->
+      <div class="report-output hidden" id="report-output">
+        <!-- Report header -->
+        <div class="report-header">
+          <div class="report-title-row">
+            <h2 id="report-title">Market Research Report</h2>
+            <div class="report-meta-badges">
+              <span id="report-mode-badge" class="badge"></span>
+              <span id="report-time-badge" class="badge badge-time"></span>
+            </div>
+          </div>
+          <p id="report-subtitle" class="report-subtitle"></p>
+        </div>
+
+        <!-- Tab navigation -->
+        <div class="tab-nav">
+          <button class="tab-btn active" data-tab="summary">📄 Executive Summary</button>
+          <button class="tab-btn" data-tab="trends">📈 Market Trends</button>
+          <button class="tab-btn" data-tab="competitors">⚔️ Competitors</button>
+          <button class="tab-btn" data-tab="customers">👥 Customers</button>
+          <button class="tab-btn" data-tab="opportunities">💡 Opportunities</button>
+          <button class="tab-btn" data-tab="reasoning">🧠 Agent Reasoning</button>
+          <button class="tab-btn" data-tab="ethics">🛡️ Ethics</button>
+        </div>
+
+        <!-- Tab content -->
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab-summary">
+            <div class="report-section" id="content-summary"></div>
+          </div>
+          <div class="tab-pane hidden" id="tab-trends">
+            <div class="report-section" id="content-trends"></div>
+          </div>
+          <div class="tab-pane hidden" id="tab-competitors">
+            <div class="report-section" id="content-competitors"></div>
+          </div>
+          <div class="tab-pane hidden" id="tab-customers">
+            <div class="report-section" id="content-customers"></div>
+          </div>
+          <div class="tab-pane hidden" id="tab-opportunities">
+            <div class="report-section" id="content-opportunities"></div>
+          </div>
+          <div class="tab-pane hidden" id="tab-reasoning">
+            <div class="report-section" id="content-reasoning"></div>
+          </div>
+          <div class="tab-pane hidden" id="tab-ethics">
+            <div class="report-section" id="content-ethics"></div>
+          </div>
+        </div>
+
+        <!-- Warnings -->
+        <div class="warnings-panel hidden" id="warnings-panel">
+          <h4>⚠️ Data Quality Notes</h4>
+          <ul id="warnings-list"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>IMRA — Intelligent Market Research Assistant &nbsp;|&nbsp; IBM Granite LLM &nbsp;|&nbsp; All analyses are AI-generated estimates. Validate with primary research before business decisions.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
